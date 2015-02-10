@@ -11,4 +11,15 @@
 
 // Variables:
 
-declare parameter runMode.
+declare parameter runMode.		// Holds parameter "mode"
+list parts in vesselParts.		// List of all parts attached to vessel
+set goForLaunch to False.		// Are we good to go?
+set stages to list().			// Parts sorted into stages
+set warning to list().			// List of warnings
+set errors to list().			// List of errors
+
+// Sort parts into stages
+
+for vPart in vesselParts {
+  stages[vPart:stage]:add(vPart).
+}
