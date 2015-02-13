@@ -51,7 +51,7 @@ when altitude > 10000 then {
         lock throttle to 1.
         when velocity:orbit:mag > orbitalVelocity then {
           set statusMsg to "Circularization complete. Shutting down.".
-          lock throttle to 0.
+          set ship:control:pilotmainthrottle TO 0.
           unlock steering.
           sas on.
           panels on.
