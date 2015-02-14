@@ -4,6 +4,7 @@
 //
 // Version History:
 //   2.0.1: Initial draft
+//   2.0.2: More accurate deltaV calculations, and TWR
 
 // Variables:
 
