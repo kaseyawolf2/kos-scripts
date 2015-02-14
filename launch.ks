@@ -9,6 +9,9 @@
 
 declare parameter targetAltitude.
 declare statusMsg.
+lock g to ship:body:mu / (ship:body:radius + ship:altitude)^2.
+list engines in shipEngines.
+set twr to 0.
 set maneuverComplete to False.
 
 // Set up staging when we're off the ground
@@ -35,23 +38,25 @@ when altitude > 10000 then {
     lock steering to heading(90,0).
     when apoapsis > targetAltitude*1000 then {
       // Coast to apoapsis and prepare maneuver-node
-      set statusMsg to "Burn complete. Coasting to target Ap.".
       lock throttle to 0.
-      set orbitBody to body("Kerbin").
+      set orbitBody to ship:body.
       set deltaA to maxthrust/mass.
-      set orbitalVelocity to orbitBody:radius * sqrt(9.8/(orbitBody:radius + (targetAltitude*1000))).
-      set deltaV to (orbitalVelocity - velocity:orbit:mag).
+      set radiusAtAp to orbitBody:radius + (targetAltitude*1000).
+      set orbitalVelocity to orbitBody:radius * sqrt(9.8/radiusAtAp).
+      set apVelocity to sqrt(orbitBody:mu * ((2/radiusAtAp)-(1/ship:obt:semimajoraxis))).
+      set deltaV to (orbitalVelocity - apVelocity).
       set timeToBurn to deltaV/deltaA.
       set circNode to node(time:seconds + eta:apoapsis,0,0,deltaV).
       add circNode.
       set burnTo to circNode:burnvector.
       lock steering to burnTo.
+      set statusMsg to "Ascent complete, next: " + round(timeToBurn) + "s circ. burn.".
       when circNode:eta < timeToBurn/2 then {
-        set statusMsg to "Circularizing. V=" + round(orbitalVelocity) + "m/s, T=" + timeToBurn + "s.".
+        set statusMsg to "Circularizing. V=" + round(orbitalVelocity) + "m/s, T=" + round(timeToBurn) + "s.".
         lock throttle to 1.
         when velocity:orbit:mag > orbitalVelocity then {
           set statusMsg to "Circularization complete. Shutting down.".
-          set ship:control:pilotmainthrottle TO 0.
+          set ship:control:pilotmainthrottle to 0.
           unlock steering.
           sas on.
           panels on.
@@ -78,6 +83,8 @@ print "+------------------------------------------------+".
 print "|                                                |".
 print "|                                                |".
 print "+------------------------------------------------+".
+print "| TWR:                                           |".
+print "+------------------------------------------------+".
 print SHIP:NAME at (2,1).
 print VERSION at (42,1).
 
@@ -97,6 +104,11 @@ stage.
 
 until maneuverComplete {
   set lastUpdate to time.
+  set tThrust to 0.
+  for eng in shipEngines {
+    set tThrust to tThrust + eng:thrust.
+  }
+  set twr to tThrust / (g * ship:mass).
   print round(apoapsis/1000,2) + "km     " at (7,5).
   print round(periapsis/1000,2) + "km     " at (29,5).
   print round(ship:obt:inclination, 2) + "     " at (7,6).
@@ -105,5 +117,6 @@ until maneuverComplete {
   print "                                                " at(1,11).
   print statusMsg at (2,10).
   print "<" + status + ">" at (2,11).
+  print round(twr, 2) + "   " at (7,13).
   wait until time > lastUpdate.  // Wait for physics tick to avoid flicker.
 }
