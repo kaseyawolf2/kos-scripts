@@ -11,22 +11,10 @@
 declare parameter targetAltitude.
 declare statusMsg.
 lock g to ship:body:mu / (ship:body:radius + ship:altitude)^2.
-list engines in shipEngines.
 set twr to 0.
 set maneuverComplete to False.
 
-// Set up staging when we're off the ground
-
-when altitude > 100 then {
-  set statusMsg to "Launch complete, throttle to 90%".
-  lock throttle to 0.9.
-  when maxthrust = 0 then {
-    stage.
-    preserve.
-  }
-}
-
-// Set up altitude-triggers (grav turn etc)
+// Set up altitude-triggers
 
 when altitude > 10000 then {
   sas off.
@@ -106,10 +94,23 @@ stage.
 until maneuverComplete {
   set lastUpdate to time.
   set tThrust to 0.
+  set flamedOut to False.
+  list engines in shipEngines.
+
   for eng in shipEngines {
+    // Add up total thrust
     set tThrust to tThrust + eng:thrust.
+    // Check if we have flamed out engines, prepare to stage.
+    if eng:flameout {
+      set flamedOut to True.
+    }
   }
+
   set twr to tThrust / (g * ship:mass).
+  if flamedOut { 
+    stage. 
+  }
+
   print round(apoapsis/1000,2) + "km     " at (7,5).
   print round(periapsis/1000,2) + "km     " at (29,5).
   print round(ship:obt:inclination, 2) + "     " at (7,6).
