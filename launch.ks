@@ -5,6 +5,7 @@
 // Version History:
 //   2.0.1: Initial draft
 //   2.0.2: More accurate deltaV calculations, and TWR
+//   2.0.3: Updated staging method to account for more engine configs
 
 // Variables:
 
