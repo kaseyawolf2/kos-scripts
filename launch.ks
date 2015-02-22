@@ -73,7 +73,9 @@ print "+------------------------------------------------+".
 print "|                                                |".
 print "|                                                |".
 print "+------------------------------------------------+".
-print "| TWR:                                           |".
+print "| TWR:                  TVe:                     |".
+print "+------------------------------------------------+".
+print "|                                                |".
 print "+------------------------------------------------+".
 print SHIP:NAME at (2,1).
 print VERSION at (42,1).
@@ -112,14 +114,31 @@ until maneuverComplete {
     stage. 
   }
 
+  // Orbital information
   print round(apoapsis/1000,2) + "km     " at (7,5).
   print round(periapsis/1000,2) + "km     " at (29,5).
   print round(ship:obt:inclination, 2) + "     " at (7,6).
   print round(ship:obt:eccentricity, 2) + "     " at (29,6).
+  // Status messages
   print "                                                " at(1,10).
   print "                                                " at(1,11).
   print statusMsg at (2,10).
   print "<" + status + ">" at (2,11).
+  // Thrust info
   print round(twr, 2) + "   " at (7,13).
-  wait until time > lastUpdate.  // Wait for physics tick to avoid flicker.
+  if altitude < 75000 {
+    print round(ship:termvelocity, 2) + "m/s    " at (29,13).
+  } else {
+    // As we approach vacuum, termvelocity gets dicey
+    print "---.--m/s    " at (29,13).
+  }
+  // Warnings
+  set warnings to "WARN: ".
+  if (ship:airspeed > ship:termvelocity) { set warnings to warnings + "[OVERSPEED] ". }
+  if (twr < 1) { set warnings to warnings + "[TWR] ". }
+  print "                                                " at(1,15).
+  print warnings at (2,15).
+
+  // Wait for physics tick to avoid flicker.
+  wait until time > lastUpdate.
 }
