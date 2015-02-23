@@ -126,7 +126,7 @@ until maneuverComplete {
   print "<" + status + ">" at (2,11).
   // Thrust info
   print round(twr, 2) + "   " at (7,13).
-  if altitude < 75000 {
+  if altitude < 69100 {
     print round(ship:termvelocity, 2) + "m/s    " at (29,13).
   } else {
     // As we approach vacuum, termvelocity gets dicey
