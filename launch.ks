@@ -122,7 +122,7 @@ until maneuverComplete {
   print "<" + status + ">" at (2,11).
   // Thrust/pitch info
   print round(twr, 2) + "   " at (7,13).
-  print max(100,round(pitchPercent)) + "%  " at (29,13).
+  print min(100,round(pitchPercent)) + "%  " at (29,13).
 
   // Warnings
   set warnings to "WARN: ".
